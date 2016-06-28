@@ -11,6 +11,7 @@ $(document).ready(function () {
   //audioSrc.connect(audioCtx.destination);
 
   //var frequencyData = new Uint8Array(analyser.frequencyBinCount);
+  // Create 150 bins for frequency data.
   var frequencyData = new Uint8Array(150);
 
   var svgHeight = '300';
@@ -23,7 +24,7 @@ $(document).ready(function () {
 
   var svg = createSvg('body', svgHeight, svgWidth);
 
-  // Create initial D3 chart.
+  // Create initial D3 bar-chart.
   svg.selectAll('rect')
      .data(frequencyData)
      .enter()
@@ -32,79 +33,48 @@ $(document).ready(function () {
         return i * (svgWidth / frequencyData.length);
      })
      .attr('width', svgWidth / frequencyData.length - barPadding);
-     //.transition()
-      //.duration(2)
-      //.delay(10)
 
-  // Continuously loop and update chart with frequency data.
-  function renderChart() {
-     
+  // Continuously loop and update bar-chart with frequency data.
+  function renderChart() {     
      requestAnimationFrame(renderChart);
 
      // Copy frequency data to frequencyData array.
      analyser.getByteFrequencyData(frequencyData);
 
-     // Update d3 chart with new data.
+     // Update d3 bar-chart with new data.
      svg.selectAll('rect')
         .data(frequencyData)
         .attr('y', function(d) {
-           /*if(d<150){
-            return -svgHeight;
-           }
-           else{
-            return svgHeight - d;
-           }*/
-  
           return svgHeight - d;
         })
         .attr('height', function(d) {
-           if(d<150){
+           // If frequency data is <150, do no draw bar.
+          if(d<150){
             return 0;
-           }
-           else{
+          }
+          else{
             return d;
-           }      
+          }      
         })
-        .attr('fill', function(d) {
-           
-           //return 'rgb(0, 0, ' + d + ')';
-           
-          // IF statement test cases
-           if(d<150){
+        .attr('fill', function(d) { 
+          // Fill bars depending on frequency data (color is also affected by this data).
+          if(d<150){
             //return 'rgb(0,' + d +',' + d + ')';
             return 'rgb(0,' + (255-d) + ', 0)';
-           }
-           else if(d<180){
+          }
+          else if(d<180){
             //return 'rgb(' + d + ', 0, 0)';
             //return 'rgb(75, 0, ' + d + ')';
             return 'rgb(0,' + (300-d) + ', 0)';
-           }
-           else{
+          }
+          else{
             //return 'rgb(0, 75, ' + d + ')';
             return 'rgb(0,' + d + ', 0)';
-           }
-           
-          // TEST
-           /*if(d<150){
-            return 'rgb(0,' + d +'+50,'+ d + ')';
-           }
-           else if(d<180){
-            return 'rgb(0,' + d +'-50,'+ d + ')';
-           }
-           else{
-            return 'rgb(0,' + d + d + ')';
-           }*/
-           
-
-           //return 'rgb('+d+','+d+',' + d + ')';
-           //return 'rgb(0,'+d+',' + d + ')';
+          }
         });
-
-
+      // Used to keep track of frequency data (WARNING: WILL RUN VERY SLOW)
       //console.log(frequencyData);
   }
-
   // Run the loop
   renderChart();
-
 });
